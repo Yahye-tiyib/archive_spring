@@ -70,11 +70,18 @@ public class BoxMensuelleService {
 
         return boxMensuelleRepository.save(box);
     }
-
+    public List<BoxMensuelle> findBoxesByAnnee(int annee) {
+        return boxMensuelleRepository.findByAnnee(annee);
+    }
+    
     // Obtenir une BoxMensuelle par mois et année
     public BoxMensuelle getBoxMensuelleByMoisAndAnnee(int mois, int annee) {
         Optional<BoxMensuelle> box = boxMensuelleRepository.findByMoisAndAnnee(mois, annee);
         return box.orElse(null);
+    }
+    public BoxMensuelle getBoxById(Long id) {
+        Optional<BoxMensuelle> box = boxMensuelleRepository.findById(id);
+        return box.orElse(null);  // Retourne l'objet BoxMensuelle si trouvé, sinon null
     }
 
     public BoxMensuelle modifierBoxMensuelle(Long id, BoxMensuelle boxModifiee) {

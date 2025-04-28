@@ -41,7 +41,7 @@ public class BoxFichierController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+     
     // ✅ Gérer automatiquement la box mensuelle (clôturer l'ancienne et créer une nouvelle)
     @PostMapping("/gerer")
     public ResponseEntity<Void> gererBoxMensuelle() {
@@ -52,6 +52,11 @@ public class BoxFichierController {
             return ResponseEntity.internalServerError().build();
         }
     }
+@GetMapping("/boxes_year")
+public List<BoxMensuelle> getBoxesByYear(@RequestParam int annee) {
+    return boxMensuelleService.findBoxesByAnnee(annee);
+}
+
 
     // ✅ Modifier une BoxMensuelle existante par son ID
     @PutMapping("/modifier/{id}")
@@ -77,6 +82,15 @@ public class BoxFichierController {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
+        }
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<BoxMensuelle> getBoxById(@PathVariable Long id) {
+        BoxMensuelle boxMensuelle = boxMensuelleService.getBoxById(id);
+        if (boxMensuelle != null) {
+            return ResponseEntity.ok(boxMensuelle);  // Retourne les détails du box
+        } else {
+            return ResponseEntity.notFound().build();  // Si le box n'existe pas, retourne une erreur 404
         }
     }
 }

@@ -1,6 +1,9 @@
 package com.archive.archives.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,4 +70,31 @@ public class FichierBudgetaireService {
     public void deleteFichier(Long id) {
         fichierRepo.deleteById(id);
     }
+    public List<FichierBudgetaire> getFichiersByBox(Long boxId) {
+      return fichierRepo.findByBoxId(boxId);
+  }
+
+
+   public Map<String, Long> getNombreFichiersByBox(Long boxId) {
+    BoxMensuelle box = boxRepo.findById(boxId)
+            .orElseThrow(() -> new IllegalStateException("Box non trouvée avec l'ID : " + boxId));
+
+    List<FichierBudgetaire> fichiers = fichierRepo.findByBox(box);
+    if (fichiers == null) fichiers = new ArrayList<>(); // sécurité en plus même si normalement Spring Data renvoie jamais null
+
+    long total = fichiers.size();
+    long traites = fichiers.stream()
+                            .filter(f -> f != null && f.isTraiter()) // sécurité au cas où
+                            .count();
+    long nonTraites = total - traites;
+
+    Map<String, Long> statistiques = new HashMap<>();
+    statistiques.put("total", total);
+    statistiques.put("traites", traites);
+    statistiques.put("nonTraites", nonTraites);
+
+    return statistiques;
+}
+
+
 }

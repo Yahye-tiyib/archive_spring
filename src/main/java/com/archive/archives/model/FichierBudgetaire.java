@@ -38,6 +38,7 @@ public class FichierBudgetaire {
     public void setNomfichier(String nomfichier) {
       this.nomfichier = nomfichier;
     }
+    
 
 
     public LocalDate getDateReception() {

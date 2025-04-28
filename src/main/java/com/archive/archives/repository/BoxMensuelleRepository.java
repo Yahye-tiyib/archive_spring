@@ -15,6 +15,8 @@ public interface BoxMensuelleRepository extends JpaRepository<BoxMensuelle, Long
 
     boolean existsByMoisAndAnnee(int mois, int annee);
     List<BoxMensuelle> findByStatut(BoxMensuelle.StatutBox statut);
+    List<BoxMensuelle> findByAnnee(int annee);
+
 
 
     @Query("SELECT b FROM BoxMensuelle b WHERE b.mois = :mois AND b.annee = :annee")
