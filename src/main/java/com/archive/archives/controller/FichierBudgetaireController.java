@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -121,6 +123,14 @@ public ResponseEntity<FichierBudgetaire> ajouterFichierBoxActuelle(
         return ResponseEntity.status(500).build();
     }
 }
+    @GetMapping("/statistiques/{boxId}")
+    public Map<String, Long> getStatistiquesByBox(@PathVariable Long boxId) {
+        return fichierService.getNombreFichiersByBox(boxId);
+    }
+    @GetMapping("/box/{boxId}")
+    public List<FichierBudgetaire> getFichiersByBox(@PathVariable Long boxId) {
+        return fichierService.getFichiersByBox(boxId);
+    }
 
     @PutMapping("/modifier/{id}")
 public ResponseEntity<FichierBudgetaire> updateFichier(
@@ -162,4 +172,5 @@ public ResponseEntity<FichierBudgetaire> updateFichier(
             return ResponseEntity.badRequest().build();
         }
     }
+    
 }

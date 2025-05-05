@@ -20,7 +20,7 @@ public class BoxMensuelle {
     private LocalDate dateDebut;
     private LocalDate dateFin;
 
-    public enum StatutBox { OUVERTE, CLOTUREE }
+    public enum StatutBox { CLOTUREE,OUVERTE }
     private StatutBox statut;
  
     private String nom;
