@@ -9,10 +9,14 @@ public class FichierBudgetaire {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nomfichier;
+    
+    private String nomEtablissement; 
+    private String fichier; // Remplacé ici
 
+    private String referenceLettre;   // Nouveau
+    private String objet;             // Nouveau
 
-    private String fichier;
+  
 
     private LocalDate dateReception;
 
@@ -31,15 +35,38 @@ public class FichierBudgetaire {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getNomfichier() {
-      return nomfichier;
-    }
-
-    public void setNomfichier(String nomfichier) {
-      this.nomfichier = nomfichier;
-    }
     
+    public String getNomEtablissement() {
+        return nomEtablissement;
+    }
 
+    public void setNomEtablissement(String nomEtablissement) {
+        this.nomEtablissement = nomEtablissement;
+    }
+
+    public String getReferenceLettre() {
+        return referenceLettre;
+    }
+
+    public void setReferenceLettre(String referenceLettre) {
+        this.referenceLettre = referenceLettre;
+    }
+
+    public String getObjet() {
+        return objet;
+    }
+
+    public void setObjet(String objet) {
+        this.objet = objet;
+    }
+
+    public String getFichier() {
+        return fichier;
+    }
+
+    public void setFichier(String fichier) {
+        this.fichier = fichier;
+    }
 
     public LocalDate getDateReception() {
         return dateReception;
@@ -57,21 +84,11 @@ public class FichierBudgetaire {
         this.traiter = traiter;
     }
 
-
-
     public BoxMensuelle getBox() {
         return box;
     }
 
     public void setBox(BoxMensuelle box) {
         this.box = box;
-    }
-
-    public String getFichier() {
-      return fichier;
-    }
-
-    public void setFichier(String fichier) {
-      this.fichier = fichier;
     }
 }
