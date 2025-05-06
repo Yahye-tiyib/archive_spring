@@ -48,7 +48,6 @@ public class BoxMensuelleService {
             newBox.setDateFin(fin);
             newBox.setStatut(BoxMensuelle.StatutBox.OUVERTE);
             newBox.setNom("Box-" + moisActuel.getMonthValue() + "-" + moisActuel.getYear());
-
             boxMensuelleRepository.save(newBox);
         }
     }

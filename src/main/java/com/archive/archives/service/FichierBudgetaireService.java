@@ -61,7 +61,6 @@ public class FichierBudgetaireService {
         fichier.setNomfichier(updatedFichier.getNomfichier());
         fichier.setFichier(updatedFichier.getFichier());
         fichier.setDateReception(updatedFichier.getDateReception());
-        fichier.setEtat(updatedFichier.isEtat());
         fichier.setTraiter(updatedFichier.isTraiter());
 
         return fichierRepo.save(fichier);

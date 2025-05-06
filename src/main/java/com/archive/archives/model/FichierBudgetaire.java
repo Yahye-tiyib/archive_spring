@@ -17,7 +17,7 @@ public class FichierBudgetaire {
     private LocalDate dateReception;
 
     private boolean traiter = false; 
-    private boolean etat = false; 
+  
     @ManyToOne
     @JoinColumn(name = "box_id")
     private BoxMensuelle box;
@@ -57,13 +57,7 @@ public class FichierBudgetaire {
         this.traiter = traiter;
     }
 
-    public boolean isEtat() {
-        return etat;
-    }
 
-    public void setEtat(boolean etat) {
-        this.etat = etat;
-    }
 
     public BoxMensuelle getBox() {
         return box;
