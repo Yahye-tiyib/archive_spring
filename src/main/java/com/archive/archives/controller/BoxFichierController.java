@@ -15,7 +15,11 @@ public class BoxFichierController {
 
     @Autowired
     private BoxMensuelleService boxMensuelleService;
-
+    
+    @GetMapping("/ouvertes")
+    public List<BoxMensuelle> getBoxesOuvertes() {
+        return boxMensuelleService.getBoxesOuvertes();
+    }
     // ✅ Récupérer toutes les BoxMensuelle
     @GetMapping("/all")
     public ResponseEntity<List<BoxMensuelle>> getAllBoxes() {
