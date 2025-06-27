@@ -115,39 +115,48 @@ public class FichierBudgetaireController {
     }
   }
 
-  @PutMapping("/modifier/{id}")
-  public ResponseEntity<FichierBudgetaire> updateFichier(
-      @PathVariable Long id,
-      @RequestParam("nomEtablissement") String nomEtablissement,
-      @RequestParam("referenceLettre") String referenceLettre,
-      @RequestParam("objet") String objet,
-      @RequestParam("dateReception") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateReception,
-      @RequestParam("traiter") boolean traiter,
-      @RequestParam(value = "file", required = false) MultipartFile file) {
-    try {
-      FichierBudgetaire existing = fichierService.getFichierById(id);
-      if (existing == null)
-        return ResponseEntity.notFound().build();
+ @PutMapping("/modifier/{id}")
+public ResponseEntity<FichierBudgetaire> updateFichier(
+    @PathVariable Long id,
+    @RequestParam("nomEtablissement") String nomEtablissement,
+    @RequestParam("referenceLettre") String referenceLettre,
+    @RequestParam("objet") String objet,
+    @RequestParam("dateReception") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateReception,
+    @RequestParam("traiter") boolean traiter,
+    @RequestParam("boxId") Long boxId,
+    @RequestParam(value = "file", required = false) MultipartFile file) {
+  try {
+    FichierBudgetaire existing = fichierService.getFichierById(id);
+    if (existing == null)
+      return ResponseEntity.notFound().build();
 
-      existing.setNomEtablissement(nomEtablissement);
-      existing.setReferenceLettre(referenceLettre);
-      existing.setObjet(objet);
-      existing.setDateReception(dateReception);
-      existing.setTraiter(traiter);
+    // Mettre à jour les champs du fichier
+    existing.setNomEtablissement(nomEtablissement);
+    existing.setReferenceLettre(referenceLettre);
+    existing.setObjet(objet);
+    existing.setDateReception(dateReception);
+    existing.setTraiter(traiter);
 
-      if (file != null && !file.isEmpty()) {
-        String fileName = file.getOriginalFilename();
-        Path path = Paths.get("uploads/fichiersBudgeters/" + fileName);
-        Files.createDirectories(path.getParent());
-        Files.write(path, file.getBytes());
-        existing.setFichier("/uploads/fichiersBudgeters/" + fileName);
-      }
-
-      return ResponseEntity.ok(fichierService.updateFichier(id, existing));
-    } catch (IOException e) {
-      return ResponseEntity.status(500).build();
+    // ✅ Gestion du fichier s'il y a un nouveau
+    if (file != null && !file.isEmpty()) {
+      String fileName = file.getOriginalFilename();
+      Path path = Paths.get("uploads/fichiersBudgeters/" + fileName);
+      Files.createDirectories(path.getParent());
+      Files.write(path, file.getBytes());
+      existing.setFichier("/uploads/fichiersBudgeters/" + fileName);
     }
+
+    // ✅ Mise à jour de la box associée
+    BoxMensuelle box = boxRepo.findById(boxId)
+        .orElseThrow(() -> new IllegalStateException("Box non trouvée avec l'ID : " + boxId));
+    existing.setBox(box);
+
+    return ResponseEntity.ok(fichierService.updateFichier(id, existing));
+  } catch (IOException e) {
+    return ResponseEntity.status(500).build();
   }
+}
+
 
   @DeleteMapping("/supprimer/{id}")
   public ResponseEntity<Void> deleteFichier(@PathVariable Long id) {

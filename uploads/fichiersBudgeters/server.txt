@@ -1,0 +1,88 @@
+
+"C:\xampp\mysql\bin\mysql.exe" -u root
+
+-------dans VPS |||||||||||||||||
+cd ~/EL-Sheila-App-Frontend
+ng build --configuration=production
+git pull --no-rebase
+sudo mkdir -p /var/www/angular
+sudo chmod -R 755 /var/www/angular
+sudo nano /etc/nginx/sites-available/angular-app
+server {
+    listen 80;
+    server_name _;
+
+    root /var/www/angular;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+sudo systemctl restart nginx
+
+
+||||||||||||||||||||||||||||||||||||||||||||||||||
+
+
+nohup node server.mjs > server.log 2>&1 &
+
+mot de passe server   Bouna@2002Med 
+m.bouna30@gmail.com
+Elsheila@2025
+ssh root@31.97.47.232
+
+sudo find / -name pg_hba.conf  #recherche
+sudo systemctl status postgresql      # Voir si c'est actif
+sudo systemctl stop postgresql        # Arrêter le service
+sudo systemctl start postgresql       # Démarrer le service
+sudo systemctl restart postgresql     # Redémarrer le service
+sudo systemctl enable postgresql      # Le rendre actif au démarrage
+sudo systemctl restart postgresql@16-main
+
+psql -U postgres -W   #connecter 3le server postgres 
+sudo -u postgres psql
+password postgres :Medvall21026
+\q   #quiter
+
+
+##comment clonner projet git ;
+ssh-keygen -t ed25519 -C " 21026@supnum.mr" 
+
+git clone git@github.com:medmahfoudh/EL-Sheila-App-Frontend.git
+ssh -T git@github.com
+Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub"
+ Puis colle-la sur GitHub :
+Va sur https://github.com/settings/keys
+
+Clique sur “New SSH key”
+
+Title : choisis un nom comme Laptop ou HP
+
+Key : colle ce que tu as copié
+
+Clique sur "Add SSH key"
+
+
+##spring||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+./mvnw clean package -DskipTests
+scp target/livrecap-0.0.1-SNAPSHOT.jar root@31.97.47.232:~/EL-Sheila-Admin-App/
+cd ~/EL-Sheila-Admin-App
+pkill -f 'livrecap-0.0.1-SNAPSHOT.jar'
+nohup java -jar livrecap-0.0.1-SNAPSHOT.jar > log.txt 2>&1 &
+~/EL-Sheila-Admin-App/src/main/java/com/livrecap/livrecap#
+
+##angular ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+scp -r dist/livrecap_angular/* root@31.97.47.232:~/EL-Sheila-App-Frontend/
+
+ng build --configuration production
+ng run livrecap_angular: server
+scp -r dist/livrecap_angular root@31.97.47.232:~/EL-Sheila-App-Frontend/dist/
+pm2 status → voir l’état des processus
+pm2 logs livrecap-server → voir les logs en direct
+npm install -g pm2
+pm2 start server.mjs --name livrecap-server
+pm2 startup 
+pm2 save 
+|||||||||||||||||||||||||pm2 restart livrecap-server → redémarrer le serveur puis pm2 save |||||||||||
+pm2 save 
