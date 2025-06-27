@@ -21,6 +21,11 @@ public class BoxMensuelleService {
     public List<BoxMensuelle> getAllBoxes() {
       return boxMensuelleRepository.findAll(Sort.by(Sort.Direction.DESC, "annee", "mois"));
   }
+
+  public List<BoxMensuelle> getBoxesOuvertes() {
+    return boxMensuelleRepository.findByStatut(BoxMensuelle.StatutBox.OUVERTE);
+}
+
   
 
     // Méthode appelée automatiquement chaque 1er du mois pour gérer les BoxMensuelles
@@ -48,7 +53,6 @@ public class BoxMensuelleService {
             newBox.setDateFin(fin);
             newBox.setStatut(BoxMensuelle.StatutBox.OUVERTE);
             newBox.setNom("Box-" + moisActuel.getMonthValue() + "-" + moisActuel.getYear());
-
             boxMensuelleRepository.save(newBox);
         }
     }

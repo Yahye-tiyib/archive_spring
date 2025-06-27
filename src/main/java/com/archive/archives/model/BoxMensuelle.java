@@ -20,9 +20,9 @@ public class BoxMensuelle {
     private LocalDate dateDebut;
     private LocalDate dateFin;
 
-    public enum StatutBox { CLOTUREE,OUVERTE }
+    public enum StatutBox {OUVERTE , CLOTUREE }
     private StatutBox statut;
-
+ 
     private String nom;
     @JsonIgnore
     @OneToMany(mappedBy = "box", cascade = CascadeType.ALL)

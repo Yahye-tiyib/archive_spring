@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -31,145 +30,172 @@ import com.archive.archives.service.FichierBudgetaireService;
 @RequestMapping("/api/fichiers")
 public class FichierBudgetaireController {
 
-    @Autowired
-    private FichierBudgetaireService fichierService;
-    @Autowired
-    private BoxMensuelleRepository boxRepo;
+  @Autowired
+  private FichierBudgetaireService fichierService;
 
+  @Autowired
+  private BoxMensuelleRepository boxRepo;
 
-    // Ajouter un fichier avec l'ID de la box
+  @GetMapping("/all")
+  public List<FichierBudgetaire> getAll() {
+    return fichierService.getAll();
+  }
 
+  @GetMapping("/{id}")
+  public ResponseEntity<FichierBudgetaire> getById(@PathVariable Long id) {
+    return fichierService.getById(id)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
 
-    @GetMapping("/all")
-    public List<FichierBudgetaire> getAll() {
-        return fichierService.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<FichierBudgetaire> getById(@PathVariable Long id) {
-        return fichierService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-    @PostMapping(value = "/ajouter/avec-box/{boxId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-public ResponseEntity<FichierBudgetaire> ajouterFichierAvecBoxId(
-        @RequestParam("nomfichier") String nomfichier,
-        @RequestParam("dateReception") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateReception,
-        @RequestParam("etat") boolean etat,
-        @RequestParam("traiter") boolean traiter,
-        @RequestParam("file") MultipartFile file,
-        @PathVariable Long boxId
-) {
+  @PostMapping("/ajouter")
+  public ResponseEntity<FichierBudgetaire> ajouterFichier(
+      @RequestParam("nomEtablissement") String nomEtablissement,
+      @RequestParam("referenceLettre") String referenceLettre,
+      @RequestParam("objet") String objet,
+      @RequestParam("dateReception") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateReception,
+      @RequestParam("traiter") boolean traiter,
+      @RequestParam("file") MultipartFile file,
+      @RequestParam("boxId") Long boxId) {
     try {
-        // Vérification que le fichier est bien reçu
-        if (file.isEmpty()) {
-            System.out.println("Aucun fichier reçu.");
-            return ResponseEntity.badRequest().body(null);
-        }
-        
-        System.out.println("Nom du fichier reçu : " + file.getOriginalFilename());
-        
-        // Enregistrer le fichier sur le disque
-        String fileName = file.getOriginalFilename();
-        Path path = Paths.get("src/main/resources/uploads/fichhiers/" + fileName);
-        Files.write(path, file.getBytes());
-
-        // Créer et remplir l'objet FichierBudgetaire
-        FichierBudgetaire fichier = new FichierBudgetaire();
-        fichier.setNomfichier(nomfichier);
-        fichier.setDateReception(dateReception);
-        fichier.setEtat(etat);
-        fichier.setTraiter(traiter);
-        fichier.setFichier(path.toString());
-
-        // Récupérer la box et l'associer au fichier
-        BoxMensuelle box = boxRepo.findById(boxId)
-                .orElseThrow(() -> new IllegalStateException("Box non trouvée avec l'ID : " + boxId));
-        fichier.setBox(box);
-
-        // Sauvegarder le fichier et renvoyer la réponse
-        return ResponseEntity.ok(fichierService.ajouterFichierAvecBoxId(fichier, boxId));
-    } catch (Exception e) {
-        System.out.println("Erreur dans le traitement du fichier : " + e.getMessage());
+      if (file.isEmpty()) {
         return ResponseEntity.badRequest().body(null);
+      }
+
+      String uploadDir = "uploads/fichiersBudgeters";
+      Files.createDirectories(Paths.get(uploadDir));
+
+      String fileName = file.getOriginalFilename();
+      Path filePath = Paths.get(uploadDir, fileName);
+      Files.write(filePath, file.getBytes());
+
+      FichierBudgetaire fichier = new FichierBudgetaire();
+      fichier.setNomEtablissement(nomEtablissement);
+      fichier.setReferenceLettre(referenceLettre);
+      fichier.setObjet(objet);
+      fichier.setDateReception(dateReception);
+      fichier.setTraiter(traiter);
+      fichier.setFichier("/uploads/fichiersBudgeters/" + fileName);
+
+      BoxMensuelle box = boxRepo.findById(boxId)
+          .orElseThrow(() -> new IllegalStateException("Box non trouvée avec l'ID : " + boxId));
+      fichier.setBox(box);
+
+      return ResponseEntity.ok(fichierService.ajouterFichierAvecBoxId(fichier, boxId));
+    } catch (Exception e) {
+      return ResponseEntity.status(500).body(null);
     }
-}
+  }
 
-    
-
-    // Ajouter un fichier à la box actuellement ouverte
-    @PostMapping("/ajouter/box-actuelle")
-public ResponseEntity<FichierBudgetaire> ajouterFichierBoxActuelle(
-        @RequestParam("nomfichier") String nomfichier,
-        @RequestParam("dateReception") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateReception,
-        @RequestParam("etat") boolean etat,
-        @RequestParam("traiter") boolean traiter,
-        @RequestParam("file") MultipartFile file) {
+  @PostMapping("/ajouter/box-actuelle")
+  public ResponseEntity<FichierBudgetaire> ajouterFichierBoxActuelle(
+      @RequestParam("nomEtablissement") String nomEtablissement,
+      @RequestParam("referenceLettre") String referenceLettre,
+      @RequestParam("objet") String objet,
+      @RequestParam("dateReception") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateReception,
+      @RequestParam("traiter") boolean traiter,
+      @RequestParam("file") MultipartFile file) {
     try {
+      String fileName = file.getOriginalFilename();
+      Path path = Paths.get("uploads/fichiersBudgeters/" + fileName);
+      Files.createDirectories(path.getParent());
+      Files.write(path, file.getBytes());
+
+      FichierBudgetaire fichier = new FichierBudgetaire();
+      fichier.setNomEtablissement(nomEtablissement);
+      fichier.setReferenceLettre(referenceLettre);
+      fichier.setObjet(objet);
+      fichier.setFichier("/uploads/fichiersBudgeters/" + fileName);
+      fichier.setDateReception(dateReception);
+      fichier.setTraiter(traiter);
+
+      return ResponseEntity.ok(fichierService.ajouterFichierBoxActuelle(fichier));
+    } catch (IOException e) {
+      return ResponseEntity.status(500).build();
+    }
+  }
+
+  @PutMapping("/modifier/{id}")
+  public ResponseEntity<FichierBudgetaire> updateFichier(
+      @PathVariable Long id,
+      @RequestParam("nomEtablissement") String nomEtablissement,
+      @RequestParam("referenceLettre") String referenceLettre,
+      @RequestParam("objet") String objet,
+      @RequestParam("dateReception") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateReception,
+      @RequestParam("traiter") boolean traiter,
+      @RequestParam(value = "file", required = false) MultipartFile file) {
+    try {
+      FichierBudgetaire existing = fichierService.getFichierById(id);
+      if (existing == null)
+        return ResponseEntity.notFound().build();
+
+      existing.setNomEtablissement(nomEtablissement);
+      existing.setReferenceLettre(referenceLettre);
+      existing.setObjet(objet);
+      existing.setDateReception(dateReception);
+      existing.setTraiter(traiter);
+
+      if (file != null && !file.isEmpty()) {
         String fileName = file.getOriginalFilename();
-        Path path = Paths.get("src/main/resources/uploads/fichhiers/" + fileName);
+        Path path = Paths.get("uploads/fichiersBudgeters/" + fileName);
+        Files.createDirectories(path.getParent());
         Files.write(path, file.getBytes());
+        existing.setFichier("/uploads/fichiersBudgeters/" + fileName);
+      }
 
-        FichierBudgetaire fichier = new FichierBudgetaire();
-        fichier.setNomfichier(nomfichier);
-        fichier.setFichier(path.toString());
-        fichier.setDateReception(dateReception);
-        fichier.setEtat(etat);
-        fichier.setTraiter(traiter);
-
-        return ResponseEntity.ok(fichierService.ajouterFichierBoxActuelle(fichier));
+      return ResponseEntity.ok(fichierService.updateFichier(id, existing));
     } catch (IOException e) {
-        return ResponseEntity.status(500).build();
+      return ResponseEntity.status(500).build();
     }
-}
-    @GetMapping("/statistiques/{boxId}")
-    public Map<String, Long> getStatistiquesByBox(@PathVariable Long boxId) {
-        return fichierService.getNombreFichiersByBox(boxId);
-    }
-    @GetMapping("/box/{boxId}")
-    public List<FichierBudgetaire> getFichiersByBox(@PathVariable Long boxId) {
-        return fichierService.getFichiersByBox(boxId);
-    }
+  }
 
-    @PutMapping("/modifier/{id}")
-public ResponseEntity<FichierBudgetaire> updateFichier(
-        @PathVariable Long id,
-        @RequestParam("nomfichier") String nomfichier,
-        @RequestParam("dateReception") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateReception,
-        @RequestParam("etat") boolean etat,
-        @RequestParam("traiter") boolean traiter,
-        @RequestParam(value = "file", required = false) MultipartFile file) {
+  @DeleteMapping("/supprimer/{id}")
+  public ResponseEntity<Void> deleteFichier(@PathVariable Long id) {
     try {
-        FichierBudgetaire existing = fichierService.getFichierById(id);
-        if (existing == null) return ResponseEntity.notFound().build();
-
-        existing.setNomfichier(nomfichier);
-        existing.setDateReception(dateReception);
-        existing.setEtat(etat);
-        existing.setTraiter(traiter);
-
-        if (file != null && !file.isEmpty()) {
-            String fileName = file.getOriginalFilename();
-            Path path = Paths.get("src/main/resources/uploads/fichhiers/" + fileName);
-            Files.write(path, file.getBytes());
-            existing.setFichier(path.toString());
-        }
-
-        return ResponseEntity.ok(fichierService.updateFichier(id, existing));
-    } catch (IOException e) {
-        return ResponseEntity.status(500).build();
+      fichierService.deleteFichier(id);
+      return ResponseEntity.ok().build();
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().build();
     }
-}
+  }
+
+  @GetMapping("/statistiques/{boxId}")
+  public Map<String, Long> getStatistiquesByBox(@PathVariable Long boxId) {
+    return fichierService.getNombreFichiersByBox(boxId);
+  }
+
+  @GetMapping("/box/{boxId}")
+  public List<FichierBudgetaire> getFichiersByBox(@PathVariable Long boxId) {
+    return fichierService.getFichiersByBox(boxId);
+  }
 
 
-    @DeleteMapping("/supprimer/{id}")
-    public ResponseEntity<Void> deleteFichier(@PathVariable Long id) {
-        try {
-            fichierService.deleteFichier(id);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+  @GetMapping("/statistiques/fichiers-par-mois")
+    public ResponseEntity<Map<Integer, Long>> getFichiersParMoisPourAnnee(@RequestParam("annee") int annee) {
+        Map<Integer, Long> stats = fichierService.getNombreFichiersParMoisPourAnnee(annee);
+        return ResponseEntity.ok(stats);
     }
-    
+
+
+  @GetMapping("/statistiques/traitement-par-mois")
+  public ResponseEntity<Map<Integer, Map<String, Long>>> getTraitementFichiersParMois(
+          @RequestParam("annee") int annee) {
+      Map<Integer, Map<String, Long>> stats = fichierService.getTraitementFichiersParMoisPourAnnee(annee);
+      return ResponseEntity.ok(stats);
+  }
+
+
+  @GetMapping("/statistiques/statut-boxes")
+  public ResponseEntity<Map<String, Long>> getStatutBoxes() {
+      Map<String, Long> stats = fichierService.getStatutBoxes();
+      return ResponseEntity.ok(stats);
+  }
+
+
+  @GetMapping("/statistiques/top-etablissements")
+  public ResponseEntity<Map<String, Long>> getTop5Etablissements() {
+      Map<String, Long> stats = fichierService.getTop5EtablissementsActifs();
+      return ResponseEntity.ok(stats);
+  }
+
 }

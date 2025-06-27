@@ -19,6 +19,4 @@ public interface FichierBudgetaireRepository extends JpaRepository<FichierBudget
     List<FichierBudgetaire> findByTraiter(boolean traiter);
 
     List<FichierBudgetaire> findByBox(BoxMensuelle box);
-
-    List<FichierBudgetaire> findByEtat(boolean etat);
 }
